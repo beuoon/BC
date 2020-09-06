@@ -1,0 +1,6 @@
+[submodule "websocketpp"]
+	path = Libraries/websocketpp
+	url = https://github.com/zaphoyd/websocketpp
+[submodule "Libraries/asio"]
+	path = Libraries/asio
+	url = https://github.com/chriskohlhoff/asio
