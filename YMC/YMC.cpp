@@ -8,53 +8,51 @@
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
+HWND hWnd;
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 NOTIFYICONDATA niData;
-ControlServer controlServer;
-thread *controlThread;
+ControlServer *controlServer = nullptr;
+thread *controlThread = nullptr;
+HHOOK hHook;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
+HWND                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-void                createTray();
+void                CreateTray();
+LRESULT CALLBACK    LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
-{
+                     _In_ int       nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: 여기에 코드를 입력합니다.
-
-    // 전역 문자열을 초기화합니다.
+    // 전역 문자열 초기화
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_YMC, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
+    hInst = hInstance;
 
-    // 애플리케이션 초기화를 수행합니다:
-    if (!InitInstance(hInstance, nCmdShow))
-    {
+    // 애플리케이션 초기화
+    if ((hWnd = InitInstance(hInstance, SW_HIDE)) == NULL) {
         return FALSE;
     }
 
-    createTray();
-
     // 서비스 시작
-    controlThread = new thread(&ControlServer::run, &controlServer);
+    CreateTray();
 
-    HWND hWnd = GetForegroundWindow();
-    ShowWindow(hWnd, SW_HIDE);
+    controlServer = new ControlServer();
+    controlThread = new thread(&ControlServer::run, controlServer);
 
+    hHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, hInstance, 0);
+
+    // 기본 메시지 루프
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_YMC));
-
     MSG msg;
 
-    // 기본 메시지 루프입니다:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
@@ -67,13 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     return (int) msg.wParam;
 }
 
-//
-//  함수: MyRegisterClass()
-//
-//  용도: 창 클래스를 등록합니다.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
+ATOM MyRegisterClass(HINSTANCE hInstance) {
     WNDCLASSEXW wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -93,38 +85,25 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
-//
-//   함수: InitInstance(HINSTANCE, int)
-//
-//   용도: 인스턴스 핸들을 저장하고 주 창을 만듭니다.
-//
-//   주석:
-//
-//        이 함수를 통해 인스턴스 핸들을 전역 변수에 저장하고
-//        주 프로그램 창을 만든 다음 표시합니다.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
+HWND InitInstance(HINSTANCE hInstance, int nCmdShow) {
+   hInst = hInstance;
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd) {
-      return FALSE;
+   if (hWnd) {
+       ShowWindow(hWnd, nCmdShow);
+       UpdateWindow(hWnd);
    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
+   return hWnd;
 }
 
-void createTray() {
+void CreateTray() {
     ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
 
     niData.cbSize = sizeof(NOTIFYICONDATA);
-    niData.hWnd = GetForegroundWindow();
+    niData.hWnd = hWnd;
 
     niData.uID = ID_TRAY_ICON;
     niData.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_YMC));
@@ -137,16 +116,19 @@ void createTray() {
     Shell_NotifyIcon(NIM_ADD, &niData);
 }
 
-//
-//  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  용도: 주 창의 메시지를 처리합니다.
-//
-//  WM_COMMAND  - 애플리케이션 메뉴를 처리합니다.
-//  WM_PAINT    - 주 창을 그립니다.
-//  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
-//
-//
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (controlServer != nullptr && nCode == HC_ACTION && wParam == WM_KEYDOWN && GetAsyncKeyState(VK_OEM_5)) {
+        KBDLLHOOKSTRUCT *p = (KBDLLHOOKSTRUCT *)lParam;
+
+        switch (p->vkCode) {
+        case 0x50:      controlServer->sendPrev();   break;
+        case VK_OEM_4:  controlServer->sendPause();  break;
+        case VK_OEM_6:  controlServer->sendNext();   break;
+        }
+    }
+    return CallNextHookEx(hHook, nCode, wParam, lParam);
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
@@ -186,8 +168,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
-        controlServer.stop();
-        controlThread->join();
+        UnhookWindowsHookEx(hHook);
+
+        if (controlServer != nullptr && controlThread != nullptr) {
+            controlServer->stop();
+            controlThread->join();
+
+            delete controlThread;
+            delete controlServer;
+
+            controlThread = nullptr;
+            controlServer = nullptr;
+        }
 
         Shell_NotifyIcon(NIM_DELETE, &niData);
         PostQuitMessage(0);
