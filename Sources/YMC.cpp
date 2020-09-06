@@ -1,31 +1,33 @@
-﻿// YMC.cpp : 애플리케이션에 대한 진입점을 정의합니다.
-//
+﻿#include <YMC.h>
 
-#include "framework.h"
-#include "YMC.h"
+using namespace std;
 
 #define MAX_LOADSTRING 100
 
-// 전역 변수:
-HINSTANCE hInst;                                // 현재 인스턴스입니다.
+// 전역 변수
+HINSTANCE hInst;
 HWND hWnd;
-WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
-WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+WCHAR szTitle[MAX_LOADSTRING];
+WCHAR szWindowClass[MAX_LOADSTRING];
+
 NOTIFYICONDATA niData;
-ControlServer *controlServer = nullptr;
-thread *controlThread = nullptr;
 HHOOK hHook;
 
-// 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
+ControlServer *controlServer = nullptr;
+thread *controlThread = nullptr;
+
+// 함수
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 HWND                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+
 void                CreateTray();
 LRESULT CALLBACK    LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+
+int APIENTRY WinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
+                     _In_ LPTSTR    lpCmdLine,
                      _In_ int       nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -50,16 +52,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     hHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, hInstance, 0);
 
     // 기본 메시지 루프
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_YMC));
     MSG msg;
 
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 
     return (int) msg.wParam;
@@ -111,7 +108,7 @@ void CreateTray() {
     niData.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
     niData.uCallbackMessage = WM_EX_MESSAGE;
 
-    wsprintf(niData.szTip, L"Youtube Music Controller");
+    sprintf_s(niData.szTip, "Youtube Music Controller");
 
     Shell_NotifyIcon(NIM_ADD, &niData);
 }
@@ -139,7 +136,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case WM_RBUTTONUP:
                     {
                         HMENU hMenu = CreatePopupMenu();
-                        AppendMenu(hMenu, MF_STRING, ID_TRAY_EXIT_CONTEXT_MENU_ITEM, L"종료");
+                        AppendMenuA(hMenu, MF_STRING, ID_TRAY_EXIT_CONTEXT_MENU_ITEM, "종료");
 
                         POINT pt;
                         GetCursorPos(&pt);
