@@ -51,6 +51,17 @@ public:
         for (auto hdl : con_list)
             m_endpoint.send(hdl, msg, websocketpp::frame::opcode::text);
     }
+    void sendStartMix() {
+        string msg = "start_mix";
+        for (auto hdl : con_list)
+            m_endpoint.send(hdl, msg, websocketpp::frame::opcode::text);
+    }
+    void sendStart(int index) {
+        char buff[20];
+        sprintf_s(buff, "start %d", index);
+        for (auto hdl : con_list)
+            m_endpoint.send(hdl, buff, websocketpp::frame::opcode::text);
+    }
 
     void run() {
         m_endpoint.listen(9002);
