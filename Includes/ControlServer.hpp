@@ -35,32 +35,33 @@ public:
     void close_haldner(websocketpp::connection_hdl hdl) {
         con_list.erase(hdl);
     }
-
-    void sendPrev() {
-        string msg = "prev";
+    void broadcast(string msg) {
         for (auto hdl : con_list)
             m_endpoint.send(hdl, msg, websocketpp::frame::opcode::text);
+    }
+    void sendPrev() {
+        broadcast("prev");
     }
     void sendPause() {
-        string msg = "pause";
-        for (auto hdl : con_list)
-            m_endpoint.send(hdl, msg, websocketpp::frame::opcode::text);
+        broadcast("pause");
     }
     void sendNext() {
-        string msg = "next";
-        for (auto hdl : con_list)
-            m_endpoint.send(hdl, msg, websocketpp::frame::opcode::text);
+        broadcast("next");
+    }
+    void sendVolumeDown() {
+        broadcast("volume_down");
+    }
+    void sendVolumeUp() {
+        broadcast("volume_up");
     }
     void sendStartMix() {
-        string msg = "start_mix";
-        for (auto hdl : con_list)
-            m_endpoint.send(hdl, msg, websocketpp::frame::opcode::text);
+        broadcast("start_mix");
     }
     void sendStart(int index) {
         char buff[20];
         sprintf_s(buff, "start %d", index);
-        for (auto hdl : con_list)
-            m_endpoint.send(hdl, buff, websocketpp::frame::opcode::text);
+
+        broadcast(buff);
     }
 
     void run() {

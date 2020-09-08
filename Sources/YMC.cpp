@@ -118,10 +118,12 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
         KBDLLHOOKSTRUCT *p = (KBDLLHOOKSTRUCT *)lParam;
 
         switch (p->vkCode) {
-        case 0x50:      controlServer->sendPrev();      break;
-        case VK_OEM_4:  controlServer->sendPause();     break;
-        case VK_OEM_6:  controlServer->sendNext();      break;
-        case VK_OEM_3:  controlServer->sendStartMix();  break;
+        case 0x50:          controlServer->sendPrev();      break;
+        case VK_OEM_4:      controlServer->sendPause();     break;
+        case VK_OEM_6:      controlServer->sendNext();      break;
+        case VK_OEM_3:      controlServer->sendStartMix();  break;
+        case VK_OEM_MINUS:  controlServer->sendVolumeDown();break;
+        case VK_OEM_PLUS:   controlServer->sendVolumeUp();  break;
         default:
             if (0x31 <= p->vkCode && p->vkCode <= 0x39) {
                 int index = p->vkCode-0x30;
