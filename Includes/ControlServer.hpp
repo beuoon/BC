@@ -54,6 +54,12 @@ public:
     void sendVolumeUp() {
         broadcast("volume_up");
     }
+    void sendRepeat() {
+        broadcast("repeat");
+    }
+    void sendShuffle() {
+        broadcast("shuffle");
+    }
     void sendStartMix() {
         broadcast("start_mix");
     }
