@@ -54,6 +54,12 @@ public:
     void sendVolumeUp() {
         broadcast("volume_up");
     }
+    void sendSpeedDown() {
+        broadcast("speed_down");
+    }
+    void sendSpeedUp() {
+        broadcast("speed_up");
+    }
     void sendRepeat() {
         broadcast("repeat");
     }
