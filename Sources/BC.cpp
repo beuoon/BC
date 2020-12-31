@@ -1,4 +1,4 @@
-﻿#include <YMC.h>
+﻿#include <BC.h>
 
 using namespace std;
 
@@ -34,7 +34,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
     // 전역 문자열 초기화
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_YMC, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_BC, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
     hInst = hInstance;
 
@@ -72,7 +72,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_YMC));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_BC));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = NULL;
@@ -103,12 +103,12 @@ void CreateTray() {
     niData.hWnd = hWnd;
 
     niData.uID = ID_TRAY_ICON;
-    niData.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_YMC));
+    niData.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_BC));
 
     niData.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
     niData.uCallbackMessage = WM_EX_MESSAGE;
 
-    sprintf_s(niData.szTip, "Youtube Music Controller");
+    sprintf_s(niData.szTip, "Browser Controller");
 
     Shell_NotifyIcon(NIM_ADD, &niData);
 }
