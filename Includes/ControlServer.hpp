@@ -60,12 +60,6 @@ public:
     void sendSpeedUp() {
         broadcast("speed_up");
     }
-    void sendBackward() {
-        broadcast("backward");
-    }
-    void sendForward() {
-        broadcast("forward");
-    }
     void sendRepeat() {
         broadcast("repeat");
     }
@@ -75,6 +69,20 @@ public:
     void sendStartMix() {
         broadcast("start_mix");
     }
+
+    void sendBackward() {
+        broadcast("backward");
+    }
+    void sendForward() {
+        broadcast("forward");
+    }
+    void sendTheatreMode() {
+        broadcast("theatre_mode");
+    }
+    void sendExtendChatting() {
+        broadcast("extend_chatting");
+    }
+
     void sendStart(int index) {
         char buff[20];
         sprintf_s(buff, "start %d", index);
