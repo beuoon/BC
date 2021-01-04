@@ -119,7 +119,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
         switch (p->vkCode) {
         case 0x50:          controlServer->sendPrev();      break; // p
-        case 0x57:          controlServer->sendSpeedDown(); break; // x
+        case 0x58:          controlServer->sendSpeedDown(); break; // x
         case 0x43:          controlServer->sendSpeedUp();   break; // c
         case VK_OEM_4:      controlServer->sendPause();     break; // [
         case VK_OEM_6:      controlServer->sendNext();      break; // ]
