@@ -7,7 +7,7 @@
 #include <thread>
 
 #include <shellapi.h>
-#include <resource.h>
+#include <Resource.h>
 
 #define ID_TRAY_ICON 0x1234
 #define ID_TRAY_EXIT_CONTEXT_MENU_ITEM 0x1236

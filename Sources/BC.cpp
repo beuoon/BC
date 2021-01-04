@@ -1,4 +1,4 @@
-﻿#include <BC.h>
+﻿#include <BC.hpp>
 
 using namespace std;
 
