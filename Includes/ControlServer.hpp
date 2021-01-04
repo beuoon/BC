@@ -60,6 +60,12 @@ public:
     void sendSpeedUp() {
         broadcast("speed_up");
     }
+    void sendBackward() {
+        broadcast("backward");
+    }
+    void sendForward() {
+        broadcast("forward");
+    }
     void sendRepeat() {
         broadcast("repeat");
     }

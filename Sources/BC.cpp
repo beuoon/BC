@@ -128,6 +128,8 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
         case VK_OEM_PLUS:   controlServer->sendVolumeUp();  break; // +
         case 0x49:          controlServer->sendRepeat();    break; // i
         case 0x4F:          controlServer->sendShuffle();   break; // o
+        case 0xBC:          controlServer->sendBackward();  break; // <
+        case 0xBE:          controlServer->sendForward();   break; // >
         default:
             if (0x31 <= p->vkCode && p->vkCode <= 0x39) { // 1 ~ 9
                 int index = p->vkCode - 0x30;
